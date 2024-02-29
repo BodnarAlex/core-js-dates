@@ -176,8 +176,10 @@ function getCountWeekendsInMonth(month, year) {
  * Date(2024, 0, 31) => 5
  * Date(2024, 1, 23) => 8
  */
-function getWeekNumberByDate(/* date */) {
-  throw new Error('Not implemented');
+function getWeekNumberByDate(date) {
+  const startDate = new Date(date.getFullYear(), 0, 1);
+  const days = Math.floor((date - startDate) / (24 * 3600 * 1000));
+  return Math.ceil((startDate.getDay() + days + 1) / 7);
 }
 
 /**
@@ -191,8 +193,16 @@ function getWeekNumberByDate(/* date */) {
  * Date(2024, 0, 13) => Date(2024, 8, 13)
  * Date(2023, 1, 1) => Date(2023, 9, 13)
  */
-function getNextFridayThe13th(/* date */) {
-  throw new Error('Not implemented');
+function getNextFridayThe13th(date) {
+  const year = date.getFullYear();
+  let month = date.getMonth();
+  const count = 13;
+  let data = new Date(year, month, count);
+  while (data.getDay() !== 5) {
+    month += 1;
+    data = new Date(year, month, count);
+  }
+  return data;
 }
 
 /**
@@ -228,8 +238,34 @@ function getQuarter(date) {
  * { start: '01-01-2024', end: '15-01-2024' }, 1, 3 => ['01-01-2024', '05-01-2024', '09-01-2024', '13-01-2024']
  * { start: '01-01-2024', end: '10-01-2024' }, 1, 1 => ['01-01-2024', '03-01-2024', '05-01-2024', '07-01-2024', '09-01-2024']
  */
-function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
-  throw new Error('Not implemented');
+
+function toNeedFormat(str) {
+  return new Date(str).toLocaleDateString('es-CL');
+}
+
+function getWorkSchedule(period, countWorkDays, countOffDays) {
+  let startString = toNeedFormat(period.start);
+  let startDate = new Date(startString);
+  const endArr = period.end.split('-').reverse();
+  endArr[1] -= 1;
+  const endTime = new Date(...endArr).getTime();
+  let work = countWorkDays;
+  let dataPlus = 0;
+  const res = [];
+
+  while (endTime >= startDate.getTime()) {
+    if (work > 0) {
+      res.push(startString);
+      dataPlus = startDate.getDate() + 1;
+      work -= 1;
+    } else {
+      work = countWorkDays;
+      dataPlus = startDate.getDate() + countOffDays;
+    }
+    startDate = new Date(startDate.setDate(dataPlus));
+    startString = toNeedFormat(startDate);
+  }
+  return res;
 }
 
 /**
