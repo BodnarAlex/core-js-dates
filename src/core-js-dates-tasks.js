@@ -244,26 +244,26 @@ function toNeedFormat(str) {
 }
 
 function getWorkSchedule(period, countWorkDays, countOffDays) {
-  let start = toNeedFormat(period.start);
-  let currentStart = new Date(start);
+  let startString = toNeedFormat(period.start);
+  let startDate = new Date(startString);
   const endArr = period.end.split('-').reverse();
   endArr[1] -= 1;
-  const end = new Date(...endArr);
-  const res = [];
+  const endTime = new Date(...endArr).getTime();
   let work = countWorkDays;
-  while (end.getTime() >= currentStart.getTime()) {
+  let dataPlus = 0;
+  const res = [];
+
+  while (endTime >= startDate.getTime()) {
     if (work > 0) {
-      res.push(start);
-      const dataPlus = currentStart.getDate() + 1;
-      currentStart = new Date(currentStart.setDate(dataPlus));
-      start = toNeedFormat(currentStart);
+      res.push(startString);
+      dataPlus = startDate.getDate() + 1;
       work -= 1;
     } else {
       work = countWorkDays;
-      const dataPlus = currentStart.getDate();
-      currentStart = new Date(currentStart.setDate(dataPlus + countOffDays));
-      start = toNeedFormat(currentStart);
+      dataPlus = startDate.getDate() + countOffDays;
     }
+    startDate = new Date(startDate.setDate(dataPlus));
+    startString = toNeedFormat(startDate);
   }
   return res;
 }
