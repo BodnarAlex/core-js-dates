@@ -240,21 +240,29 @@ function getQuarter(date) {
  */
 
 function toNeedFormat(str) {
-  return new Date(str).toLocaleString('en-GB', { hour12: false });
+  return new Date(str).toLocaleDateString('es-CL');
 }
 
 function getWorkSchedule(period, countWorkDays, countOffDays) {
-  const [start, end] = [period.start, period.end];
+  let start = toNeedFormat(period.start);
+  let currentStart = new Date(start);
+  const endArr = period.end.split('-').reverse();
+  endArr[1] -= 1;
+  const end = new Date(...endArr);
   const res = [];
   let work = countWorkDays;
-  console.log(toNeedFormat(start));
-  console.log(start.getDate());
-  for (let i = start.getDate(); i <= end.getDate(); i += 1) {
-    if (work !== 0) {
-      console.log('i', i);
+  while (end.getTime() >= currentStart.getTime()) {
+    if (work > 0) {
+      res.push(start);
+      const dataPlus = currentStart.getDate() + 1;
+      currentStart = new Date(currentStart.setDate(dataPlus));
+      start = toNeedFormat(currentStart);
       work -= 1;
     } else {
-      i += countOffDays;
+      work = countWorkDays;
+      const dataPlus = currentStart.getDate();
+      currentStart = new Date(currentStart.setDate(dataPlus + countOffDays));
+      start = toNeedFormat(currentStart);
     }
   }
   return res;
